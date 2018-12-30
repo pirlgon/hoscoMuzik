@@ -1,90 +1,93 @@
 <template>
-<div id="grid-template">
-  <table>
-    <thead>
-      <tr>
-        <th>Artwork</th>
-        <th v-for="key in columns"
-          @click="sortBy(key)"
-          :class="{ active: sortKey == key }">
-          {{ key | capitalize }}
-          <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-          </span>
-        </th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(entry,rang) in filteredData">
-        <td><img :src="entry.artworkUrl60"/></td>
-        <td v-for="key in columns">
-          {{entry[key]}}
-        </td>
-        <td><button v-on:click="listen(rang);">Listen</button></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div id="grid-template">
+    <table>
+      <thead>
+        <tr>
+          <th>Artwork</th>
+          <th v-for="key in columns" @click="sortBy(key)" :class="{ active: sortKey == key }">
+            {{ key | capitalize }}
+            <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></span>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(entry,rang) in filteredData">
+          <td>
+            <img :src="entry.artworkUrl60">
+          </td>
+          <td v-for="key in columns">{{entry[key]}}</td>
+          <td>
+            <button v-on:click="listen(rang);" id="listen"></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'grid',
-  template: '#grid-template',
+  name: "grid",
+  template: "#grid-template",
   props: {
     data: Array,
     columns: Array,
     filterKey: String
   },
-  data: function () {
-    var sortOrders = {}
-    this.columns.forEach(function (key) {
-      sortOrders[key] = 1
-    })
+  data: function() {
+    let sortOrders = {};
+    this.columns.forEach(function(key) {
+      sortOrders[key] = 1;
+    });
     return {
-      sortKey: '',
+      sortKey: "",
       sortOrders: sortOrders
-    }
+    };
   },
   computed: {
-    filteredData: function () {
-      var sortKey = this.sortKey
-      var filterKey = this.filterKey && this.filterKey.toLowerCase()
-      var order = this.sortOrders[sortKey] || 1
-      var data = this.data
+    filteredData: function() {
+      let sortKey = this.sortKey;
+      let filterKey = this.filterKey && this.filterKey.toLowerCase();
+      let order = this.sortOrders[sortKey] || 1;
+      let data = this.data;
       if (filterKey) {
-        data = data.filter(function (row) {
-          return Object.keys(row).some(function (key) {
-            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-          })
-        })
-      }
-      if (sortKey) {
-        data = data.slice().sort(function (a, b) {
-          a = a[sortKey]
-          b = b[sortKey]
-          return (a === b ? 0 : a > b ? 1 : -1) * order
+        data = data.filter(function(row) {
+          return Object.keys(row).some(function(key) {
+            return (
+              String(row[key])
+                .toLowerCase()
+                .indexOf(filterKey) > -1
+            );
+          });
         });
       }
-      return data
+      if (sortKey) {
+        data = data.slice().sort(function(a, b) {
+          a = a[sortKey];
+          b = b[sortKey];
+          return (a === b ? 0 : a > b ? 1 : -1) * order;
+        });
+      }
+      return data;
     }
   },
   filters: {
-    capitalize: function (str) {
-      return str.charAt(0).toUpperCase() + str.slice(1)
+    capitalize: function(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
     }
   },
   methods: {
-    sortBy: function (key) {
+    sortBy: function(key) {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
-      this.$emit('sort',this.filteredData);
+      this.$emit("sort", this.filteredData);
     },
     listen: function(rang) {
-        this.$emit('listen',rang);
+      this.$emit("listen", rang);
     }
   }
-}
+};
 </script>
 
 <style>
@@ -98,11 +101,12 @@ table {
   border: 2px solid #42b983;
   border-radius: 3px;
   background-color: #fff;
+  color: black;
 }
 
 th {
   background-color: #42b983;
-  color: rgba(255,255,255,0.66);
+  color: rgba(255, 255, 255, 0.66);
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -114,7 +118,8 @@ td {
   background-color: #f9f9f9;
 }
 
-th, td {
+th,
+td {
   min-width: 120px;
   padding: 10px 20px;
 }
@@ -151,5 +156,14 @@ th.active .arrow {
   margin: auto;
   width: 75%;
 }
+#grid-template button {
+  width: 64px;
+  height: 64px;
+  border: 0;
+  cursor: pointer;
+  border-radius:5px;
+  background-image: url("../assets/play.png")
+}
+
 
 </style>
