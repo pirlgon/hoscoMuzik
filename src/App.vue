@@ -3,22 +3,20 @@
     <h1>Hosco Muzik</h1>
     <div v-show="!player">
       <p>{{ message }}</p>
-      <input v-model="searched">
-      <button v-on:click="searchOnItunes" v-on:keyup.enter="searchOnItunes">OK</button>
-      <p>{{ resultMessage }}</p>
+      <input v-model="searched" v-on:keyup.enter="searchOnItunes">
+      <button v-on:click="searchOnItunes" >OK</button>
+      <p v-show="!loading">{{ resultMessage }}</p>
     </div>
+    <img src="./assets/wait.gif" v-show="loading">
     <grid
       :data="result"
       :columns="gridColumns"
       v-on:listen="changeSong($event)"
       v-on:sort="changeOrder($event)"
-      v-show="!player && result.length > 0"
+      v-show="!player && result.length > 0 && !loading"
     ></grid>
     <audioplayer
-      :songArtwork="songArtwork"
-      :songUrl="songUrl"
-      :songName="songName"
-      :songArtist="songArtist"
+      :currentSong="currentSong"
       v-show="player"
       v-on:nextSong="nextSong"
       v-on:prevSong="previousSong"
@@ -46,46 +44,50 @@ export default {
       searched: "",
       result: [],
       resultCount: 0,
-      gridColumns: ["artistName", "trackName", "collectionName"],
-      songUrl: "",
-      songArtwork: "",
+      gridColumns: [
+        "artistName",
+        "trackName",
+        "trackPrice",
+        "collectionName",
+        "primaryGenreName",
+        "trackDuration"
+      ],
+      currentSong: { artworkUrl100: "", artistName: "", trackName: "" },
       songRang: 0,
-      songName: "",
-      songArtist: "",
       audio: "",
-      player: false
+      player: false,
+      loading: false
     };
   },
   methods: {
     searchOnItunes() {
+      this.loading = true;
       axios
         .get("https://itunes.apple.com/search?term=" + this.searchedTerms)
         .then(response => {
           this.result = [];
           response.data.results.forEach(song => {
+            song.trackDuration = parseMilliseconds(song.trackTimeMillis);
             this.result.push(song);
           });
           this.resultCount = response.data.resultCount;
+          this.loading = false;
         })
         .catch(function(error) {
           this.result = error;
+          this.loading = false;
         });
     },
     changeSong(rang) {
-      this.songUrl = this.result[rang].previewUrl;
-      this.songArtwork = this.result[rang].artworkUrl100;
+      this.currentSong = this.result[rang];
       this.songRang = rang;
-      this.songName = this.result[rang].trackName;
-      this.songArtist = this.result[rang].artistName;
-
-      console.log(this.result[rang].trackName);
 
       this.player = true;
       this.$refs["audioplayer"].initSong();
     },
-    changeOrder(filteredData) {
-      this.result = filteredData;
-      console.log(filteredData);
+    changeOrder(fiteredData) {
+      this.result = fiteredData;
+      console.log(fiteredData);
     },
     nextSong() {
       if (this.songRang < this.result.length - 1) {
@@ -104,6 +106,7 @@ export default {
       this.changeSong(this.songRang);
     },
     backToResult() {
+      document.title = "Hosco Muzik";
       this.player = false;
     }
   },
@@ -126,10 +129,26 @@ export default {
     }
   }
 };
+
+function parseMilliseconds(milliseconds) {
+  var hours = milliseconds / (1000 * 60 * 60);
+  var absoluteHours = Math.floor(hours);
+  var h = absoluteHours > 9 ? absoluteHours : "0" + absoluteHours;
+
+  var minutes = (hours - absoluteHours) * 60;
+  var absoluteMinutes = Math.floor(minutes);
+  var m = absoluteMinutes > 9 ? absoluteMinutes : "0" + absoluteMinutes;
+
+  var seconds = (minutes - absoluteMinutes) * 60;
+  var absoluteSeconds = Math.floor(seconds);
+  var s = absoluteSeconds > 9 ? absoluteSeconds : "0" + absoluteSeconds;
+
+  return h + ":" + m + ":" + s;
+}
 </script>
 
 <style>
-body{
+body {
   background-color: black;
 }
 

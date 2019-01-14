@@ -66,6 +66,16 @@ export default {
         data = data.slice().sort(function(a, b) {
           a = a[sortKey];
           b = b[sortKey];
+          if(!a && !b)
+          {
+              return 0;
+          }
+          else if (!a ) {
+            return -1 * order;
+          }
+          else if (!b) {
+            return 1 * order;
+          }
           return (a === b ? 0 : a > b ? 1 : -1) * order;
         });
       }
@@ -161,9 +171,7 @@ th.active .arrow {
   height: 64px;
   border: 0;
   cursor: pointer;
-  border-radius:5px;
-  background-image: url("../assets/play.png")
+  border-radius: 5px;
+  background-image: url("../assets/play.png");
 }
-
-
 </style>
