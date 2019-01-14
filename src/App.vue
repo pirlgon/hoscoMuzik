@@ -4,7 +4,7 @@
     <div v-show="!player">
       <p>{{ message }}</p>
       <input v-model="searched" v-on:keyup.enter="searchOnItunes">
-      <button v-on:click="searchOnItunes" >OK</button>
+      <button v-on:click="searchOnItunes">OK</button>
       <p v-show="!loading">{{ resultMessage }}</p>
     </div>
     <img src="./assets/wait.gif" v-show="loading">
@@ -67,7 +67,12 @@ export default {
         .then(response => {
           this.result = [];
           response.data.results.forEach(song => {
-            song.trackDuration = parseMilliseconds(song.trackTimeMillis);
+            if (Number.isInteger(song.trackTimeMillis)) {
+              song.trackDuration = parseMilliseconds(song.trackTimeMillis);
+            } else {
+              song.trackDuration = "--";
+            }
+
             this.result.push(song);
           });
           this.resultCount = response.data.resultCount;
