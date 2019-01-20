@@ -92,7 +92,7 @@ export default {
     },
     changeOrder(fiteredData) {
       this.result = fiteredData;
-      console.log(fiteredData);
+    //   console.log(fiteredData);
     },
     nextSong() {
       if (this.songRang < this.result.length - 1) {
